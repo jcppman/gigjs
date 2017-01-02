@@ -20,8 +20,14 @@
     "lint": "eslint app/**/*.js"
   },
   "dependencies": {
+    "express": "^4.14.0",
+    "express-history-api-fallback": "^2.1.0",
+    "lodash": "^4.17.4",
+    "morgan": "^1.7.0",
     "react": "~15.3.0",
-    "react-dom": "~15.3.0"
+    "react-dom": "~15.3.0",
+    "serve-static": "^1.11.1",
+    "socket.io": "^1.7.2"
   },
   "devDependencies": {
     "auto-reload-brunch": "^2.0.0",
@@ -41,5 +47,6 @@
     "postcss-brunch": "^2.0.5",
     "postcss-simple-vars": "^3.0.0",
     "uglify-js-brunch": "^2.0.0"
-  }
+  },
+  "main": "index.js"
 }

@@ -21,4 +21,8 @@ module.exports = {
       modules: true
     },
   },
+
+  server: {
+    path: 'server/app.js',
+  },
 };
