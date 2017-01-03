@@ -1,21 +1,31 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import io from 'socket.io-client'; // eslint-disable-line import/no-extraneous-dependencies
+import 'whatwg-fetch';
 import App from './components/App';
+import Resource from './components/Resource';
+import setup from './setup.config';
+import bus from './bus';
 
 document.addEventListener('DOMContentLoaded', () => {
-  ReactDOM.render(<App />, document.querySelector('#app'));
+  const {
+    interfaces,
+    scenes,
+  } = setup;
+
+  const route = location.pathname.replace(/\//g, '') || 'control';
+  const view = interfaces[route] || '';
+
+  ReactDOM.render(<App scenes={scenes} view={view} />, document.querySelector('#app'));
 });
 
+Resource.allResourcesLoaded().then(() => {
+  bus.toServer('loaded');
+});
 
-const socket = io();
-window.mysocket = socket;
-socket.on('message', (msg) => {
-  console.log(msg);
+bus.on('loaded', () => {
+  console.log('everyone is loaded');
 });
-socket.on('loaded', () => {
-  console.log('everyone is ready!');
-});
-socket.on('loading', () => {
-  console.log('someone is not ready');
+
+bus.on('loading', () => {
+  console.log('someone is loading');
 });

@@ -1,0 +1,12 @@
+.main {
+  text-align: center;
+  overflow-y: scroll;
+}
+
+.scene {
+  display: inline-block;
+}
+
+.activated {
+  background: lightgreen;
+}

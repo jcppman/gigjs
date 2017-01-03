@@ -1,17 +1,30 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
+import classNames from 'classnames';
 import Composer from '../Composer';
+import bus from '../bus';
 import css from '../styles/video.css';
 
+const propTypes = {
+  componentId: PropTypes.string,
+};
+
 class VideoPlayback extends Component {
-  constructor(props, ...rest) {
-    super(props, ...rest);
+  constructor(props) {
+    super(props);
     this.state = {
       current: 0,
     };
     this.video = [];
   }
-  play(resource, loop = false) {
-    return resource.blobUrl.then((blobUrl) => {
+  componentDidMount() {
+    this.listenTo('pause', this.pause);
+    this.listenTo('play', this.play);
+    this.listenTo('loop', this.loop);
+  }
+
+  play = (resource, loop = false) => resource
+    .blobUrl
+    .then((blobUrl) => {
       this.setState((prev) => {
         const [target, current] = prev.current === 0 ?
           [this.video[1], this.video[0]] :
@@ -19,27 +32,34 @@ class VideoPlayback extends Component {
 
         target.src = blobUrl;
         target.loop = loop;
-        target.play();
 
-        setTimeout(() => {
+        target.addEventListener('canplaythrough', () => {
+          target.play();
           target.style = 'opacity: 1';
           current.style = 'opacity: 0';
           current.pause();
-        }, 50);
+        }, {
+          once: true,
+        });
 
         return {
           current: prev.current === 0 ? 1 : 0,
         };
       });
-    });
-  }
-  loop(resource) {
-    return this.play(resource, true);
-  }
-  stop() {
-    const target = this.state.current === 0 ? this.video[1] : this.video[0];
+    })
+
+  loop = resource => this.play(resource, true)
+
+  pause = () => {
+    const target = this.state.current === 0 ? this.video[0] : this.video[1];
     target.pause();
   }
+
+  listenTo(event, handler) {
+    const { componentId } = this.props;
+    bus.on(`${componentId}-${event}`, handler);
+  }
+
   render() {
     return (
       <div className={css.container}>
@@ -50,7 +70,7 @@ class VideoPlayback extends Component {
         />
         <video
           width="100%"
-          className={css.video}
+          className={classNames(css.video, css.secondOne)}
           ref={(ref) => { this.video[1] = ref; }}
         />
       </div>
@@ -58,7 +78,9 @@ class VideoPlayback extends Component {
   }
 }
 
-export default function (...props) {
-  return new Composer(VideoPlayback, ...props);
+VideoPlayback.propTypes = propTypes;
+
+export default function (props) {
+  return new Composer(VideoPlayback, props);
 }
 export { VideoPlayback };

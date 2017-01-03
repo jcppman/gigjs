@@ -1,16 +1,111 @@
-import React from 'react';
+import React, { Component, PropTypes } from 'react';
+import { isFunction, isArray, defaults } from 'lodash';
+import bus from '../bus';
+import css from '../styles/application.css';
 
-export default class App extends React.Component {
-  render() {
+const propTypes = {
+  scenes: PropTypes.arrayOf(PropTypes.object),
+  view: PropTypes.object,
+};
+
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      current: 0,
+    };
+    bus.on('changeScene', this.changeScene);
+  }
+  onCurrentChange = (newVal) => {
+    bus.emit('changeScene', newVal);
+  }
+  pauseAll = () => {
+    bus.emit('pauseAll');
+  }
+  changeScene = (newVal) => {
+    const scene = defaults(this.props.scenes[newVal], {
+      onStart: [],
+      onComplete: [],
+      goNext: false,
+    });
+    const { onStart } = scene;
+
+    onStart.forEach(f => f());
+
+    this.setState({
+      current: newVal,
+      scene,
+    });
+  }
+
+  buildComp(Comp) {
+    let comp;
+    if (Comp.isSceneView) {
+      const { current } = this.state;
+      const { scenes } = this.props;
+      comp = (
+        <Comp
+          scenes={scenes}
+          current={current}
+          onChange={this.onCurrentChange}
+          onStop={this.pauseAll}
+        />
+      );
+    } else if (isFunction(Comp)) {
+      comp = (<Comp />);
+    } else if (isFunction(Comp.render)) {
+      comp = Comp.render();
+    } else {
+      comp = <div>Unsupported Compnent {Comp}</div>;
+    }
     return (
-      <div id="content">
-        <h1>&nbsp;</h1>
-        <h2>Welcome!</h2>
-        <ul>
-          <li><a href="http://brunch.io">Brunch homepage</a></li>
-          <li><a href="https://facebook.github.io/react/">React.js homepage</a></li>
-        </ul>
+      <div className={css.component}>
+        {comp}
+      </div>
+    );
+  }
+  buildRows(layout) {
+    const height = `${100 / layout.length}%`;
+    return layout.map((l, idx) => (
+      <div className={css.row} key={idx} style={{ height }}>
+        {isArray(l) ? this.buildCols(l) : this.buildComp(l)}
+      </div>
+    ));
+  }
+  buildCols(layout) {
+    const width = `${100 / layout.length}%`;
+    return layout.map((l, idx) => (
+      <div className={css.col} key={idx} style={{ width }}>
+        {isArray(l) ? this.buildRows(l) : this.buildComp(l)}
+      </div>
+    ));
+  }
+  render() {
+    const {
+      view: {
+        layout,
+        background,
+      },
+      scenes,
+    } = this.props;
+
+    const { current } = this.state;
+
+    const view = this.buildRows(layout, scenes, current);
+    const backgroundComps = background.map((b, idx) => (
+      <div key={idx} className={css.background}>{this.buildComp(b)}</div>
+    ));
+    return (
+      <div>
+        <div className={css.view}>
+          {view}
+        </div>
+        {backgroundComps}
       </div>
     );
   }
 }
+
+App.propTypes = propTypes;
+
+export default App;

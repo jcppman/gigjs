@@ -31,8 +31,8 @@ module.exports = function AppServer(port, path, callback) {
       loading[socket.id] = true;
       io.emit('loading', now());
 
-      socket.on('message', (msg) => {
-        io.emit('message', msg);
+      socket.on('broadcast', (event, msg) => {
+        socket.broadcast.emit('broadcast', event, msg);
       });
       socket.on('loaded', () => {
         delete loading[socket.id];

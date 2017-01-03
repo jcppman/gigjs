@@ -1,38 +1,41 @@
 import React from 'react';
+import uuid from 'uuid/v4';
+import bus from './bus';
 
 class Composer {
-  constructor(Component) {
+  constructor(Component, props) {
     this.component = Component;
+    this.props = props;
+    this.id = uuid();
+
+    bus.on('pauseAll', () => {
+      this.emit('pause');
+    });
+  }
+  emit(event, ...payload) {
+    bus.emit(`${this.id}-${event}`, ...payload);
   }
   pause() {
     return () => {
-      if (!this.ref) {
-        throw new Error('pause is called before the component is rendered');
-      }
-      this.ref.pause();
+      this.emit('pause');
     };
   }
   play(resource) {
     return () => {
-      if (!this.ref) {
-        throw new Error('play is called before the component is rendered');
-      }
-      this.ref.play(resource);
+      this.emit('play', resource);
     };
   }
   loop(resource) {
     return () => {
-      if (!this.ref) {
-        throw new Error('loop is called before the component is rendered');
-      }
-      this.ref.loop(resource);
+      this.emit('loop', resource);
     };
   }
-  render(...props) {
+  render(props) {
     const Component = this.component;
     return (
       <Component
-        ref={(ref) => { this.ref = ref; }}
+        componentId={this.id}
+        {...this.props}
         {...props}
       />
     );
