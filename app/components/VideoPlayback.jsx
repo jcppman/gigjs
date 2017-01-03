@@ -55,6 +55,8 @@ class VideoPlayback extends Component {
           current: prev.current === 0 ? 1 : 0,
         };
       });
+    }, (err) => {
+      console.error(err);
     })
 
   loop = resource => this.play(resource, true)

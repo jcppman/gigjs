@@ -12,7 +12,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      current: 0,
+      current: -1,
     };
     bus.on('changeScene', this.changeScene);
   }
