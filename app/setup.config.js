@@ -20,53 +20,23 @@ const scenes = [
   {
     title: 'Scene 1',
     description: 'desc 1',
-    onStart: [
+    actions: [
       video.loop(videoClips[0]),
     ],
   },
   {
     title: 'Scene 2',
     description: 'desc 2',
-    onStart: [
+    actions: [
       video.play(videoClips[1]),
       audio.play(audioClips[0]),
     ],
-    onComplete: [
-      audio.play(audioClips[1]),
-    ],
-    goNext: true,
+    goNextWhenFinish: video,
   },
   {
     title: 'Scene 3',
     description: 'desc 3',
-    onStart: [
-      video.play(videoClips[2]),
-      audio.play(audioClips[2]),
-    ],
-  },
-  {
-    title: 'Scene 1',
-    description: 'desc 1',
-    onStart: [
-      video.loop(videoClips[0]),
-    ],
-  },
-  {
-    title: 'Scene 2',
-    description: 'desc 2',
-    onStart: [
-      video.play(videoClips[1]),
-      audio.play(audioClips[0]),
-    ],
-    onComplete: [
-      audio.play(audioClips[1]),
-    ],
-    goNext: true,
-  },
-  {
-    title: 'Scene 3',
-    description: 'desc 3',
-    onStart: [
+    actions: [
       video.play(videoClips[2]),
       audio.play(audioClips[2]),
     ],
@@ -84,7 +54,9 @@ const interfaces = {
   },
   control: {
     layout: [
-      video,
+      [
+        video.with({ muted: true }),
+      ],
       SceneView,
     ],
     background: [],

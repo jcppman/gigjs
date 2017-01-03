@@ -24,13 +24,23 @@ class App extends Component {
   }
   changeScene = (newVal) => {
     const scene = defaults(this.props.scenes[newVal], {
-      onStart: [],
-      onComplete: [],
-      goNext: false,
+      actions: [],
     });
-    const { onStart } = scene;
+    const { actions, goNextWhenFinish } = scene;
 
-    onStart.forEach(f => f());
+    if (this.theNext) {
+      this.theNext.stopListening('ended');
+      this.theNext = null;
+    }
+
+    if (goNextWhenFinish !== undefined) {
+      goNextWhenFinish.listenTo('ended', () => {
+        this.theNext = goNextWhenFinish;
+        this.changeScene(newVal + 1);
+      });
+    }
+
+    actions.forEach(f => f());
 
     this.setState({
       current: newVal,

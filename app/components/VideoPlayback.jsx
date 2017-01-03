@@ -4,8 +4,17 @@ import Composer from '../Composer';
 import bus from '../bus';
 import css from '../styles/video.css';
 
+function noop() {}
+
 const propTypes = {
   componentId: PropTypes.string,
+  onEnded: PropTypes.func, // eslint-disable-line react/no-unused-prop-types
+  muted: PropTypes.bool,
+};
+
+const defaultProps = {
+  onEnded: noop,
+  muted: false,
 };
 
 class VideoPlayback extends Component {
@@ -61,16 +70,21 @@ class VideoPlayback extends Component {
   }
 
   render() {
+    const { onEnded, muted } = this.props;
     return (
       <div className={css.container}>
         <video
           width="100%"
           className={css.video}
+          onEnded={onEnded}
+          muted={muted}
           ref={(ref) => { this.video[0] = ref; }}
         />
         <video
           width="100%"
           className={classNames(css.video, css.secondOne)}
+          onEnded={onEnded}
+          muted={muted}
           ref={(ref) => { this.video[1] = ref; }}
         />
       </div>
@@ -79,6 +93,7 @@ class VideoPlayback extends Component {
 }
 
 VideoPlayback.propTypes = propTypes;
+VideoPlayback.defaultProps = defaultProps;
 
 export default function (props) {
   return new Composer(VideoPlayback, props);

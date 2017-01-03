@@ -1,4 +1,5 @@
 import React from 'react';
+import { clone } from 'lodash';
 import uuid from 'uuid/v4';
 import bus from './bus';
 
@@ -11,6 +12,12 @@ class Composer {
     bus.on('pauseAll', () => {
       this.emit('pause');
     });
+  }
+  listenTo(event, handler) {
+    bus.once(`${this.id}-${event}`, handler);
+  }
+  stopListeningTo(event) {
+    bus.removeAllListeners(`${this.id}-${event}`);
   }
   emit(event, ...payload) {
     bus.emit(`${this.id}-${event}`, ...payload);
@@ -30,11 +37,20 @@ class Composer {
       this.emit('loop', resource);
     };
   }
+  with(addProps) {
+    const cloned = clone(this);
+    cloned.props = {
+      ...cloned.props,
+      ...addProps,
+    };
+    return cloned;
+  }
   render(props) {
     const Component = this.component;
     return (
       <Component
         componentId={this.id}
+        onEnded={this.onEnded}
         {...this.props}
         {...props}
       />
