@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 module.exports = {
   files: {
     javascripts: {
@@ -11,14 +12,18 @@ module.exports = {
 
   plugins: {
     babel: {
-      presets: ['es2015', 'react'],
+      presets: ['es2015', 'es2016', 'react'],
+      plugins: [
+        'transform-object-rest-spread',
+        'transform-class-properties',
+      ],
     },
     postcss: {
       processors: [
         require('postcss-simple-vars')(),
         require('autoprefixer')(),
       ],
-      modules: true
+      modules: true,
     },
   },
 
