@@ -29,12 +29,13 @@ class App extends Component {
     const { actions, goNextWhenFinish } = scene;
 
     if (this.theNext) {
-      this.theNext.stopListening('ended');
+      this.theNext.stopListeningTo('ended');
       this.theNext = null;
     }
 
     if (goNextWhenFinish !== undefined) {
-      goNextWhenFinish.listenTo('ended', () => {
+      this.theNext = goNextWhenFinish;
+      this.theNext.listenTo('ended', () => {
         this.theNext = goNextWhenFinish;
         this.changeScene(newVal + 1);
       });

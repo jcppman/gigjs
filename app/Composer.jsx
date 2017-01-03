@@ -14,7 +14,7 @@ class Composer {
     });
   }
   listenTo(event, handler) {
-    bus.once(`${this.id}-${event}`, handler);
+    bus.on(`${this.id}-${event}`, handler);
   }
   stopListeningTo(event) {
     bus.removeAllListeners(`${this.id}-${event}`);
@@ -44,6 +44,9 @@ class Composer {
       ...addProps,
     };
     return cloned;
+  }
+  onEnded = () => {
+    this.emit('ended');
   }
   render(props) {
     const Component = this.component;
