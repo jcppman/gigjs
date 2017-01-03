@@ -16,6 +16,9 @@ module.exports = function AppServer(port, path, callback) {
     .use(staticServe(path, {
       fallthrough: true,
     }))
+    .use(staticServe(Path.resolve('gig'), {
+      fallthrough: true,
+    }))
     .use(fallback(Path.resolve(path, 'index.html')));
 
   const server = Http.Server(app);
@@ -29,7 +32,7 @@ module.exports = function AppServer(port, path, callback) {
       io.emit('loading', now());
 
       socket.on('message', (msg) => {
-        socket.broadcast.emit('message', msg);
+        io.emit('message', msg);
       });
       socket.on('loaded', () => {
         delete loading[socket.id];
